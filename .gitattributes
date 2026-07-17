@@ -1,0 +1,13 @@
+# Default
+* text=auto eol=lf
+
+# Visual Studio files
+*.sln text eol=crlf
+*.csproj text eol=crlf
+
+# Source files
+*.cs text eol=lf
+*.cshtml text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
