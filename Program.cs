@@ -2,6 +2,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient<StromligningService>(client =>
+{
+    client.BaseAddress = new Uri("https://stromligning.dk/");
+});
 
 var app = builder.Build();
 
