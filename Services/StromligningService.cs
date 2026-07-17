@@ -3,9 +3,7 @@ using StromligningApp.Models;
 
 namespace StromligningApp.Services;
 
-public sealed class StromligningService(
-    HttpClient httpClient,
-    IMemoryCache cache)
+public sealed class StromligningService(HttpClient httpClient, IMemoryCache cache)
 {
     public async Task<IReadOnlyList<ElectricityPrice>> GetPricesAsync()
     {
@@ -13,8 +11,7 @@ public sealed class StromligningService(
             "stromligning-prices",
             async entry =>
             {
-                entry.AbsoluteExpirationRelativeToNow =
-                    TimeSpan.FromHours(1);
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
 
                 return await FetchPricesAsync();
             })
@@ -32,9 +29,7 @@ public sealed class StromligningService(
             "&lean=true" +
             "&forecast=false";
 
-        var data = await httpClient
-            .GetFromJsonAsync<List<StromligningPriceDto>>(url)
-            ?? [];
+        var data = await httpClient.GetFromJsonAsync<List<StromligningPriceDto>>(url) ?? [];
 
         return [.. data.Select(Map)];
     }

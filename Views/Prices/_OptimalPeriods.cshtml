@@ -1,0 +1,24 @@
+﻿@model IReadOnlyList<OptimalPeriodModel>
+
+<h2>Billigste perioder</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fra</th>
+            <th>Til</th>
+            <th>Gennemsnit</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var period in Model)
+        {
+            <tr>
+                <td>@period.StartTime</td>
+                <td>@period.EndTime</td>
+                <td>@period.AveragePricePerKwh.ToString("0.00")</td>
+            </tr>
+        }
+    </tbody>
+</table>
