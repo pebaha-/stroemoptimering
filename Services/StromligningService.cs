@@ -1,10 +1,27 @@
+using Microsoft.Extensions.Caching.Memory;
 using StromligningApp.Models;
 
 namespace StromligningApp.Services;
 
-public sealed class StromligningService(HttpClient httpClient)
+public sealed class StromligningService(
+    HttpClient httpClient,
+    IMemoryCache cache)
 {
     public async Task<IReadOnlyList<ElectricityPrice>> GetPricesAsync()
+    {
+        return await cache.GetOrCreateAsync(
+            "stromligning-prices",
+            async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow =
+                    TimeSpan.FromHours(1);
+
+                return await FetchPricesAsync();
+            })
+            ?? [];
+    }
+
+    private async Task<IReadOnlyList<ElectricityPrice>> FetchPricesAsync()
     {
         const string url =
             "api/prices" +
@@ -19,7 +36,7 @@ public sealed class StromligningService(HttpClient httpClient)
             .GetFromJsonAsync<List<StromligningPriceDto>>(url)
             ?? [];
 
-        return data.Select(Map).ToList();
+        return [.. data.Select(Map)];
     }
 
     private static ElectricityPrice Map(StromligningPriceDto dto)
