@@ -1,0 +1,23 @@
+﻿@model IReadOnlyList<ElectricityPrice>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Tid</th>
+            <th>Pris</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    @foreach (var price in Model)
+    {
+        <tr>
+            <td>@price.StartTime</td>
+            <td>@price.EndTime</td>
+            <td>@price.PricePerKwh</td>
+        </tr>
+    }
+
+    </tbody>
+</table>
