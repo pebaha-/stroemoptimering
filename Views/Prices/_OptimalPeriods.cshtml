@@ -15,9 +15,15 @@
         @foreach (var period in Model)
         {
             <tr>
-                <td>@period.StartTime</td>
-                <td>@period.EndTime</td>
-                <td>@period.AveragePricePerKwh.ToString("0.00")</td>
+                <td>
+                    @period.LocalStartTime.ToString("dd-MM-yyyy HH:mm")
+                </td>
+                <td>
+                    @period.LocalEndTime.ToString("dd-MM-yyyy HH:mm")
+                </td>
+                <td>
+                    @period.AveragePricePerKwh.ToString("0.00") kr.
+                </td>
             </tr>
         }
     </tbody>
