@@ -10,9 +10,17 @@ public class PricesController(StromligningService service, PriceOptimizationServ
     {
         var prices = await service.GetPricesAsync();
 
+        var cheapest = optimizer
+            .FindOptimalPeriods(
+                prices,
+                TimeSpan.FromHours(2),
+                1)
+            .FirstOrDefault();
+
         var model = new PricesViewModel
         {
-            Prices = prices
+            Prices = prices,
+            CheapestPeriod = cheapest
         };
 
         return View(model);

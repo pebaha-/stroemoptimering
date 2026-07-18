@@ -13,9 +13,18 @@
 
 <script id="price-data" type="application/json">
     @Html.Raw(JsonSerializer.Serialize(
-            Model.Prices,
-            new JsonSerializerOptions
-            {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            }))
+                                                                    Model.Prices,
+                                                                    new JsonSerializerOptions
+                                                                    {
+                                                                                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                                                                    }))
+</script>
+
+<script id="optimal-period-data" type="application/json">
+    @Html.Raw(JsonSerializer.Serialize(
+                                    Model.CheapestPeriod,
+                                    new JsonSerializerOptions
+                                    {
+                                                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                                    }))
 </script>
