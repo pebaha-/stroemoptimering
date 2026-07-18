@@ -107,6 +107,7 @@ function renderOptimalPeriods(periods) {
 }
 
 function renderChart(prices, optimalPeriod) {
+    const currentIndex = findCurrentIndex(prices);
     const canvas = document.querySelector(".price-chart");
 
     if (!canvas) {
@@ -183,6 +184,23 @@ function renderChart(prices, optimalPeriod) {
             responsive: true,
 
             plugins: {
+                annotation: {
+                    annotations: {
+                        currentTime: {
+                            type: "line",
+                            xMin: currentIndex,
+                            xMax: currentIndex,
+                            borderColor: "#757575",
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                display: true,
+                                content: "Nu",
+                                position: "start"
+                            }
+                        }
+                    }
+                },
                 tooltip: {
                     callbacks: {
                         label(context) {
@@ -214,6 +232,14 @@ function updateOptimalPeriod() {
     renderBestPeriod(cheapest);
     renderOptimalPeriods(periods);
     renderChart(prices, cheapest);
+}
+
+function findCurrentIndex(prices) {
+    const now = new Date();
+
+    return prices.findIndex(price =>
+        new Date(price.endTime) >= now
+    );
 }
 
 document.addEventListener("DOMContentLoaded", () => {
