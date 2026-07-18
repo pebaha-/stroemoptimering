@@ -146,6 +146,8 @@ function renderChart(prices, optimalPeriod) {
         return;
     }
 
+    const darkGreen = "#198754";
+    const lightBlue = "#64B5F6";
 
     priceChart = new Chart(canvas, {
         type: "line",
@@ -159,17 +161,22 @@ function renderChart(prices, optimalPeriod) {
                     data: values,
                     tension: 0.2,
                     borderWidth: 2,
-                    pointRadius: 2
+                    pointRadius: 2,
+                    borderColor: lightBlue,
+                    backgroundColor: lightBlue
                 },
                 {
                     label: "Billigste periode",
                     data: optimalValues,
                     tension: 0.2,
-                    borderWidth: 4,
+                    borderWidth: 5,
                     pointRadius: 5,
-                    spanGaps: false
-                }
-            ]
+                    spanGaps: false,
+                    borderColor: darkGreen,
+                    backgroundColor: darkGreen,
+                    pointBackgroundColor: darkGreen,
+                    pointBorderColor: darkGreen
+                }]
         },
 
         options: {
