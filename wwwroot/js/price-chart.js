@@ -1,28 +1,131 @@
-function renderPriceChart(container) {
-    const priceElement = container.querySelector(".price-data");
+let priceChart = null;
 
-    if (!priceElement) {
+function getPrices() {
+    const element = document.querySelector(".price-data");
+
+    if (!element) {
+        return [];
+    }
+
+    const data = JSON.parse(element.textContent);
+
+    return data;
+}
+
+function findOptimalPeriods(prices, minutes) {
+    const periods = [];
+    const slots = minutes / 15;
+
+    for (let i = 0; i <= prices.length - slots; i++) {
+        const window = prices.slice(i, i + slots);
+
+        const average = window.reduce((sum, price) => sum + price.pricePerKwh, 0) / slots;
+
+        periods.push({
+            startTime: prices[i].startTime,
+            endTime: prices[i + slots - 1].endTime,
+            averagePricePerKwh: average
+        });
+    }
+
+    return periods.sort(
+        (a, b) => a.averagePricePerKwh - b.averagePricePerKwh
+    );
+}
+
+function formatDateTime(value) {
+    const date = new Date(value);
+
+    return `${date.getMonth() + 1}/${date.getDate()} kl. ${date.toLocaleTimeString("da-DK",
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        })
+        }`;
+}
+
+function renderBestPeriod(period) {
+    const container = document.getElementById("best-period");
+
+    if (!period) {
+        container.innerHTML = "";
         return;
     }
 
-    const prices = JSON.parse(priceElement.textContent);
-    const optimalElement = container.querySelector(".optimal-period-data");
-    const optimalPeriod = optimalElement
-        ? JSON.parse(optimalElement.textContent)
-        : null;
-    const ctx = container.querySelector(".price-chart");
+    const start = new Date(period.startTime);
+    const end = new Date(period.endTime);
 
-    if (!ctx) {
+    const sameDay = start.toDateString() === end.toDateString();
+
+    container.innerHTML = `
+        <div class="alert alert-success">
+            <strong>Bedste periode:</strong>
+            ${formatDateTime(period.startTime)}
+            –
+            ${sameDay
+            ? end.toLocaleTimeString("da-DK", {
+                hour: "2-digit",
+                minute: "2-digit"
+            })
+            : formatDateTime(period.endTime)}
+            (${period.averagePricePerKwh.toFixed(2).replace(".", ",")} kr./kWh)
+        </div>`;
+}
+
+function renderOptimalPeriods(periods) {
+    const container = document.getElementById("optimal-periods");
+
+    container.innerHTML = `
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Periode</th>
+                    <th>Pris</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${periods.slice(0, 10).map(period => `
+                    <tr>
+                        <td>
+                            ${formatDateTime(period.startTime)}
+                            -
+                            ${new Date(period.endTime)
+            .toLocaleTimeString("da-DK", {
+                hour: "2-digit",
+                minute: "2-digit"
+            })}
+                        </td>
+                        <td>
+                            ${period.averagePricePerKwh
+            .toFixed(2)
+            .replace(".", ",")} kr./kWh
+                        </td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>`;
+}
+
+function renderChart(prices, optimalPeriod) {
+    const canvas = document.querySelector(".price-chart");
+
+    if (!canvas) {
         return;
     }
 
     const labels = prices.map(price =>
-        new Date(price.startTime).toLocaleTimeString("da-DK", {
-            hour: "2-digit",
-            minute: "2-digit"
-        }));
-    const values = prices.map(price => price.pricePerKwh);
+        new Date(price.startTime)
+            .toLocaleTimeString("da-DK", {
+                hour: "2-digit",
+                minute: "2-digit"
+            }));
+
+    const values = prices.map(
+        price => price.pricePerKwh
+    );
+
     const optimalValues = prices.map(price => {
+
         if (!optimalPeriod) {
             return null;
         }
@@ -31,54 +134,54 @@ function renderPriceChart(container) {
         const start = new Date(optimalPeriod.startTime);
         const end = new Date(optimalPeriod.endTime);
 
-        return time >= start && time < end ? price.pricePerKwh : null;
+        return time >= start && time <= end
+            ? price.pricePerKwh
+            : null;
     });
 
-    new Chart(ctx, {
+
+    if (priceChart) {
+        priceChart.data.datasets[1].data = optimalValues;
+        priceChart.update();
+        return;
+    }
+
+
+    priceChart = new Chart(canvas, {
         type: "line",
+
         data: {
             labels,
+
             datasets: [
                 {
                     label: "Pris kr./kWh",
                     data: values,
                     tension: 0.2,
-                    borderColor: "rgb(54, 162, 235)",
-                    backgroundColor: "rgba(54, 162, 235, 0.1)",
                     borderWidth: 2,
-                    pointRadius: 2,
-                    pointHoverRadius: 20
+                    pointRadius: 2
                 },
                 {
                     label: "Billigste periode",
                     data: optimalValues,
                     tension: 0.2,
-                    borderColor: "rgb(25, 135, 84)",
-                    backgroundColor: "rgba(25, 135, 84, 0.15)",
                     borderWidth: 4,
                     pointRadius: 5,
-                    pointHoverRadius: 7,
                     spanGaps: false
                 }
             ]
         },
+
         options: {
             responsive: true,
+
             plugins: {
                 tooltip: {
                     callbacks: {
                         label(context) {
-                            return `${context.parsed.y.toFixed(2).replace(".", ",")} kr./kWh`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback(value) {
-                            return `${value.toFixed(2).replace(".", ",")} kr.`;
+                            return `${context.parsed.y
+                                .toFixed(2)
+                                .replace(".", ",")} kr./kWh`;
                         }
                     }
                 }
@@ -87,57 +190,41 @@ function renderPriceChart(container) {
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const container = document.getElementById("price-results");
 
-    if (container) {
-        renderPriceChart(container);
-    }
-});
+function updateOptimalPeriod() {
+    const hours = Number(document.getElementById("hours").value);
+    const minutes = Number(document.getElementById("minutes").value);
+    const totalMinutes = hours * 60 + minutes;
 
-document.body.addEventListener("htmx:afterSwap", event => {
-    if (event.detail.target.id !== "price-results") {
+    if (totalMinutes < 5 || totalMinutes > 1440) {
         return;
     }
 
-    const container = document.getElementById("price-results");
+    const prices = getPrices();
+    const periods = findOptimalPeriods(prices, totalMinutes);
+    const cheapest = periods[0];
 
-    if (container) {
-        renderPriceChart(container);
-    }
-});
+    renderBestPeriod(cheapest);
+    renderOptimalPeriods(periods);
+    renderChart(prices, cheapest);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     const hoursInput = document.getElementById("hours");
-    const error = document.getElementById("hours-error");
+    const minutesInput = document.getElementById("minutes");
 
-    if (!hoursInput) {
-        return;
-    }
+    console.log("price-chart.js initialized");
+    console.log({ hoursInput, minutesInput });
 
-    hoursInput.addEventListener("change", () => {
-        const hours = Number(hoursInput.value);
-
-        if (hours < 0 || hours > 24) {
-            error.style.display = "block";
-            hoursInput.classList.add("is-invalid");
-        } else {
-            error.style.display = "none";
-            hoursInput.classList.remove("is-invalid");
-        }
+    hoursInput?.addEventListener("change", () => {
+        console.log("hours changed");
+        updateOptimalPeriod();
     });
-});
 
-document.body.addEventListener("htmx:configRequest", event => {
-    const hoursInput = document.getElementById("hours");
+    minutesInput?.addEventListener("change", () => {
+        console.log("minutes changed");
+        updateOptimalPeriod();
+    });
 
-    if (!hoursInput) {
-        return;
-    }
-
-    const hours = Number(hoursInput.value);
-
-    if (hours < 0 || hours > 24) {
-        event.preventDefault();
-    }
+    updateOptimalPeriod();
 });

@@ -9,20 +9,8 @@
 }
 
 <div id="price-results">
-    @if (Model.CheapestPeriod is { } cheapest)
-    {
-        var sameDay = cheapest.LocalStartTime.Date == cheapest.LocalEndTime.Date;
+    <div id="best-period"></div>
 
-        <div class="alert alert-success">
-            <strong>Bedste periode:</strong>
-            @cheapest.LocalStartTime.ToString("dd'/'M 'kl.' HH:mm")
-            –
-            @(sameDay
-                ? cheapest.LocalEndTime.ToString("HH:mm")
-                : @cheapest.LocalEndTime.ToString("dd'/'M 'kl.' HH:mm"))
-            (@cheapest.AveragePricePerKwh.ToString("0.00") kr./kWh)
-        </div>
-    }
     <div class="card mb-4">
         <div class="card-body">
             <canvas class="price-chart"></canvas>
@@ -30,12 +18,10 @@
     </div>
 
     <h2 class="h4">Top 10 billigste perioder</h2>
-    <partial name="_OptimalPeriods" model="Model.OptimalPeriods" />
+
+    <div id="optimal-periods"></div>
 
     <script class="price-data" type="application/json">
             @Html.Raw(JsonSerializer.Serialize(Model.Prices, jsonOptions))
-    </script>
-    <script class="optimal-period-data" type="application/json">
-            @Html.Raw(JsonSerializer.Serialize(Model.CheapestPeriod, jsonOptions))
     </script>
 </div>

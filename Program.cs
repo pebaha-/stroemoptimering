@@ -10,7 +10,6 @@ builder.Services.AddHttpClient<StromligningService>(client =>
 {
     client.BaseAddress = new Uri("https://stromligning.dk/");
 });
-builder.Services.AddSingleton<PriceOptimizationService>();
 
 var app = builder.Build();
 
