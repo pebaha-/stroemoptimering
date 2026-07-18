@@ -15,8 +15,17 @@ function getPrices() {
 function findOptimalPeriods(prices, minutes) {
     const periods = [];
     const slots = minutes / 15;
+    const now = new Date();
 
     for (let i = 0; i <= prices.length - slots; i++) {
+        const start = new Date(prices[i].startTime);
+        const end = new Date(prices[i + slots - 1].endTime);
+
+        // Spring perioder over, der allerede er startet
+        if (start < now) {
+            continue;
+        }
+
         const window = prices.slice(i, i + slots);
 
         const average = window.reduce((sum, price) => sum + price.pricePerKwh, 0) / slots;
