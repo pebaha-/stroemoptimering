@@ -8,31 +8,32 @@ public class PricesController(StromligningService service, PriceOptimizationServ
 {
     public async Task<IActionResult> Index()
     {
-        var prices = await service.GetPricesAsync();
-
-        var cheapest = optimizer
-            .FindOptimalPeriods(
-                prices,
-                TimeSpan.FromHours(2),
-                1)
-            .FirstOrDefault();
-
-        var model = new PricesViewModel
-        {
-            Prices = prices,
-            CheapestPeriod = cheapest
-        };
-
-        return View(model);
+        return View(await CreateModelAsync(minutes: 120));
     }
 
     [HttpGet]
     public async Task<IActionResult> OptimalPeriods(int minutes)
     {
+        if (minutes is not (30 or 60 or 120))
+        {
+            return BadRequest();
+        }
+
+        return PartialView("_PriceResults", await CreateModelAsync(minutes));
+    }
+
+    private async Task<PricesViewModel> CreateModelAsync(int minutes)
+    {
         var prices = await service.GetPricesAsync();
+        var periods = optimizer.FindOptimalPeriods(
+            prices,
+            TimeSpan.FromMinutes(minutes));
 
-        var periods = optimizer.FindOptimalPeriods(prices, TimeSpan.FromMinutes(minutes));
-
-        return PartialView("_OptimalPeriods", periods);
+        return new PricesViewModel
+        {
+            Prices = prices,
+            CheapestPeriod = periods.FirstOrDefault(),
+            OptimalPeriods = periods
+        };
     }
 }

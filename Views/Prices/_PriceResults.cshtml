@@ -1,0 +1,37 @@
+@using System.Text.Json
+@model PricesViewModel
+
+@{
+    var jsonOptions = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+}
+
+<div id="price-results">
+    <div class="card mb-4">
+        <div class="card-body">
+            <canvas class="price-chart"></canvas>
+        </div>
+    </div>
+
+    @if (Model.CheapestPeriod is { } cheapest)
+    {
+        <div class="alert alert-success">
+            <strong>Bedste periode:</strong>
+            @cheapest.LocalStartTime.ToString("dd-MM HH:mm") –
+            @cheapest.LocalEndTime.ToString("HH:mm")
+            (@cheapest.AveragePricePerKwh.ToString("0.00") kr./kWh)
+        </div>
+    }
+
+    <h2 class="h4">Top 10 billigste perioder</h2>
+    <partial name="_OptimalPeriods" model="Model.OptimalPeriods" />
+
+    <script class="price-data" type="application/json">
+        @Html.Raw(JsonSerializer.Serialize(Model.Prices, jsonOptions))
+    </script>
+    <script class="optimal-period-data" type="application/json">
+        @Html.Raw(JsonSerializer.Serialize(Model.CheapestPeriod, jsonOptions))
+    </script>
+</div>
