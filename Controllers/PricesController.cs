@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using StromligningApp.Models;
 using StromligningApp.Services;
 
 namespace StromligningApp.Controllers;
@@ -9,7 +10,12 @@ public class PricesController(StromligningService service, PriceOptimizationServ
     {
         var prices = await service.GetPricesAsync();
 
-        return View(prices);
+        var model = new PricesViewModel
+        {
+            Prices = prices
+        };
+
+        return View(model);
     }
 
     [HttpGet]

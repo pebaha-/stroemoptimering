@@ -1,24 +1,21 @@
-﻿@model IReadOnlyList<ElectricityPrice>
+﻿@using System.Text.Json
+@model PricesViewModel
 
-<form hx-get="/Prices/OptimalPeriods"
-      hx-target="#optimal-periods"
-      hx-swap="innerHTML">
+<h1 class="text-center mb-4">
+    Strømpriser
+</h1>
 
-    <label>Varighed</label>
-
-    <select name="minutes">
-        <option value="15">15 minutter</option>
-        <option value="30">30 minutter</option>
-        <option value="60">1 time</option>
-        <option value="120">2 timer</option>
-        <option value="180">3 timer</option>
-        <option value="240">4 timer</option>
-    </select>
-
-    <button type="submit">
-        Find billigste periode
-    </button>
-</form>
-
-<div id="optimal-periods">
+<div class="card">
+    <div class="card-body">
+        <canvas id="priceChart"></canvas>
+    </div>
 </div>
+
+<script id="price-data" type="application/json">
+    @Html.Raw(JsonSerializer.Serialize(
+            Model.Prices,
+            new JsonSerializerOptions
+            {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }))
+</script>
