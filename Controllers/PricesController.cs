@@ -12,22 +12,23 @@ public class PricesController(StromligningService service, PriceOptimizationServ
     }
 
     [HttpGet]
-    public async Task<IActionResult> OptimalPeriods(int minutes)
+    public async Task<IActionResult> OptimalPeriods(int hours, int minutes)
     {
-        if (minutes is not (30 or 60 or 120))
+        var totalMinutes = hours * 60 + minutes;
+
+        // Minimum 5 minutes, maximum 24 hours
+        if (totalMinutes is < 5 or > 60 * 24)
         {
             return BadRequest();
         }
 
-        return PartialView("_PriceResults", await CreateModelAsync(minutes));
+        return PartialView("_PriceResults", await CreateModelAsync(totalMinutes));
     }
 
     private async Task<PricesViewModel> CreateModelAsync(int minutes)
     {
         var prices = await service.GetPricesAsync();
-        var periods = optimizer.FindOptimalPeriods(
-            prices,
-            TimeSpan.FromMinutes(minutes));
+        var periods = optimizer.FindOptimalPeriods(prices, TimeSpan.FromMinutes(minutes));
 
         return new PricesViewModel
         {

@@ -1,22 +1,50 @@
 @model PricesViewModel
 
-<h1 class="text-center mb-4">
-    Strømpriser
-</h1>
+<div class="row mb-4">
+    <div class="col-md-3">
+        <label class="form-label" for="hours">Timer</label>
+        <input id="hours"
+               class="form-control"
+               type="number"
+               name="hours"
+               min="0"
+               max="24"
+               value="2"
+               hx-get="@Url.Action("OptimalPeriods")"
+               hx-trigger="change"
+               hx-target="#price-results"
+               hx-swap="outerHTML"
+               hx-include="#minutes">
 
-<div class="mb-4">
-    <label class="form-label" for="duration">Varighed</label>
-    <select id="duration"
-            class="form-select"
-            name="minutes"
-            hx-get="@Url.Action("OptimalPeriods")"
-            hx-trigger="change"
-            hx-target="#price-results"
-            hx-swap="outerHTML">
-        <option value="30">30 minutter</option>
-        <option value="60">1 time</option>
-        <option value="120" selected>2 timer</option>
-    </select>
+        <div id="hours-error" class="text-danger mt-1" style="display:none;">
+            Antal timer skal være mellem 0 og 24.
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="minutes">Minutter</label>
+        <select id="minutes"
+                class="form-select"
+                name="minutes"
+                hx-get="@Url.Action("OptimalPeriods")"
+                hx-trigger="change"
+                hx-target="#price-results"
+                hx-swap="outerHTML"
+                hx-include="#hours">
+            <option value="0" selected>00</option>
+            <option value="5">05</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
+            <option value="35">35</option>
+            <option value="40">40</option>
+            <option value="45">45</option>
+            <option value="50">50</option>
+            <option value="55">55</option>
+        </select>
+    </div>
 </div>
 
 <partial name="_PriceResults" model="Model" />

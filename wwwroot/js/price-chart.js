@@ -106,3 +106,38 @@ document.body.addEventListener("htmx:afterSwap", event => {
         renderPriceChart(container);
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const hoursInput = document.getElementById("hours");
+    const error = document.getElementById("hours-error");
+
+    if (!hoursInput) {
+        return;
+    }
+
+    hoursInput.addEventListener("change", () => {
+        const hours = Number(hoursInput.value);
+
+        if (hours < 0 || hours > 24) {
+            error.style.display = "block";
+            hoursInput.classList.add("is-invalid");
+        } else {
+            error.style.display = "none";
+            hoursInput.classList.remove("is-invalid");
+        }
+    });
+});
+
+document.body.addEventListener("htmx:configRequest", event => {
+    const hoursInput = document.getElementById("hours");
+
+    if (!hoursInput) {
+        return;
+    }
+
+    const hours = Number(hoursInput.value);
+
+    if (hours < 0 || hours > 24) {
+        event.preventDefault();
+    }
+});
