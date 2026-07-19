@@ -45,12 +45,14 @@ function findOptimalPeriods(prices, minutes) {
 function formatDateTime(value) {
     const date = new Date(value);
 
-    return `${date.getMonth() + 1}/${date.getDate()} kl. ${date.toLocaleTimeString("da-DK",
-        {
-            hour: "2-digit",
-            minute: "2-digit"
-        })
-        }`;
+    return `${date.toLocaleDateString("da-DK", {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+    })} kl. ${date.toLocaleTimeString("da-DK", {
+        hour: "2-digit",
+        minute: "2-digit"
+    })}`;
 }
 
 function renderBestPeriod(period) {
