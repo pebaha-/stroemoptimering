@@ -20,6 +20,7 @@ public sealed class StromligningService(HttpClient httpClient, IMemoryCache cach
 
     private async Task<IReadOnlyList<ElectricityPrice>> FetchPricesAsync()
     {
+        Console.WriteLine("Fetching prices from Stromligning API...");
         const string url =
             "api/prices" +
             "?productId=vindstoed_danskvind" +

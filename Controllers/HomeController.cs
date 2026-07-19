@@ -1,14 +1,20 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using StromligningApp.Models;
+using StromligningApp.Services;
+using System.Diagnostics;
 
 namespace StromligningApp.Controllers;
 
-public class HomeController : Controller
+public class HomeController(StromligningService service) : Controller
 {
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var model = new PricesViewModel
+        {
+            Prices = await service.GetPricesAsync()
+        };
+
+        return View(model);
     }
 
     public IActionResult Privacy()

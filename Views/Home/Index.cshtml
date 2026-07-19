@@ -2,6 +2,35 @@
     ViewData["Title"] = "Billigste strømpriser i dag";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Dette er Index.cshtml</h1>
+@model PricesViewModel
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <label class="form-label" for="hours">Timer</label>
+        <input id="hours"
+               class="form-control"
+               type="number"
+               name="hours"
+               min="0"
+               max="24"
+               value="2" />
+
+        <div id="hours-error" class="text-danger mt-1" style="display:none;">
+            Antal timer skal være mellem 0 og 24.
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="minutes">Minutter</label>
+        <select id="minutes"
+                class="form-select"
+                name="minutes">
+            <option value="0" selected>0</option>
+            <option value="15">15</option>
+            <option value="30">30</option>
+            <option value="45">45</option>
+        </select>
+    </div>
 </div>
+
+<partial name="_PriceResults" model="Model" />
