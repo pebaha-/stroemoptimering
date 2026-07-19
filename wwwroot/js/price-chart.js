@@ -95,24 +95,31 @@ function renderOptimalPeriods(periods) {
                 </tr>
             </thead>
             <tbody>
-                ${periods.slice(0, 10).map(period => `
-                    <tr>
-                        <td>
-                            ${formatDateTime(period.startTime)}
-                            -
-                            ${new Date(period.endTime)
-            .toLocaleTimeString("da-DK", {
-                hour: "2-digit",
-                minute: "2-digit"
-            })}
-                        </td>
-                        <td>
-                            ${period.averagePricePerKwh
-            .toFixed(2)
-            .replace(".", ",")} kr./kWh
-                        </td>
-                    </tr>
-                `).join("")}
+                ${periods.slice(0, 10).map(period => {
+        const start = new Date(period.startTime);
+        const end = new Date(period.endTime);
+        const sameDay = start.toDateString() === end.toDateString();
+
+        return `
+                        <tr>
+                            <td>
+                                ${formatDateTime(period.startTime)}
+                                -
+                                ${sameDay
+                ? end.toLocaleTimeString("da-DK", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                })
+                : formatDateTime(period.endTime)}
+                            </td>
+                            <td>
+                                ${period.averagePricePerKwh
+                .toFixed(2)
+                .replace(".", ",")} kr./kWh
+                            </td>
+                        </tr>
+                    `;
+    }).join("")}
             </tbody>
         </table>`;
 }
