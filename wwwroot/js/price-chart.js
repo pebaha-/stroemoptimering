@@ -116,7 +116,6 @@ function renderOptimalPeriods(periods) {
 }
 
 function renderChart(prices, optimalPeriod) {
-    const currentIndex = findCurrentIndex(prices);
     const canvas = document.querySelector(".price-chart");
 
     if (!canvas) {
@@ -133,6 +132,8 @@ function renderChart(prices, optimalPeriod) {
     const values = prices.map(
         price => price.pricePerKwh
     );
+
+    const currentIndex = findCurrentIndex(prices);
 
     const optimalValues = prices.map(price => {
 
@@ -171,9 +172,22 @@ function renderChart(prices, optimalPeriod) {
                     data: values,
                     tension: 0.2,
                     borderWidth: 2,
-                    pointRadius: 2,
+                    pointRadius: ctx =>
+                        ctx.dataIndex < currentIndex ? 0 : 2,
                     borderColor: lightBlue,
-                    backgroundColor: lightBlue
+                    backgroundColor: lightBlue,
+
+                    segment: {
+                        borderColor: ctx =>
+                            ctx.p0DataIndex < currentIndex
+                                ? "rgba(100, 181, 246, 0.25)"
+                                : lightBlue
+                    },
+
+                    pointBackgroundColor: ctx =>
+                        ctx.dataIndex < currentIndex
+                            ? "rgba(100, 181, 246, 0.25)"
+                            : lightBlue
                 },
                 {
                     label: "Billigste periode",
@@ -249,6 +263,10 @@ function findCurrentIndex(prices) {
     return prices.findIndex(price =>
         new Date(price.endTime) >= now
     );
+}
+
+function isPastSegment(context) {
+    return context.p0DataIndex < findCurrentIndex(getPrices());
 }
 
 document.addEventListener("DOMContentLoaded", () => {
