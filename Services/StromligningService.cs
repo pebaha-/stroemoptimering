@@ -11,6 +11,7 @@ public sealed class StromligningService(HttpClient httpClient, IMemoryCache cach
             "stromligning-prices",
             async entry =>
             {
+                logger.LogInformation("Refreshing Stromligning price cache.");
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
 
                 return await FetchPricesAsync();
@@ -31,6 +32,7 @@ public sealed class StromligningService(HttpClient httpClient, IMemoryCache cach
             "&forecast=false";
 
         var data = await httpClient.GetFromJsonAsync<List<StromligningPriceDto>>(url) ?? [];
+        logger.LogInformation("Fetched {Count} electricity prices.", data.Count);
 
         return [.. data.Select(Map)];
     }
