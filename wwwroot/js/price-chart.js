@@ -1,15 +1,13 @@
 let priceChart = null;
 
 function getPrices() {
-    const element = document.querySelector(".price-data");
+    const element = document.getElementById("price-data");
 
     if (!element) {
         return [];
     }
 
-    const data = JSON.parse(element.textContent);
-
-    return data;
+    return JSON.parse(element.textContent);
 }
 
 function findOptimalPeriods(prices, minutes) {
@@ -86,42 +84,46 @@ function renderBestPeriod(period) {
 function renderOptimalPeriods(periods) {
     const container = document.getElementById("optimal-periods");
 
-    container.innerHTML = `
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Periode</th>
-                    <th>Pris</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${periods.slice(0, 10).map(period => {
+    const table = document
+        .getElementById("optimal-period-table-template")
+        .content
+        .firstElementChild
+        .cloneNode(true);
+
+    const tbody = table.querySelector("tbody");
+
+    const rowTemplate = document.getElementById(
+        "optimal-period-row-template");
+
+    for (const period of periods.slice(0, 10)) {
+        const row = rowTemplate.content
+            .firstElementChild
+            .cloneNode(true);
+
         const start = new Date(period.startTime);
         const end = new Date(period.endTime);
-        const sameDay = start.toDateString() === end.toDateString();
 
-        return `
-                        <tr>
-                            <td>
-                                ${formatDateTime(period.startTime)}
-                                -
-                                ${sameDay
+        const sameDay =
+            start.toDateString() === end.toDateString();
+
+        row.querySelector(".period").textContent =
+            `${formatDateTime(period.startTime)} - ${sameDay
                 ? end.toLocaleTimeString("da-DK", {
                     hour: "2-digit",
                     minute: "2-digit"
                 })
-                : formatDateTime(period.endTime)}
-                            </td>
-                            <td>
-                                ${period.averagePricePerKwh
+                : formatDateTime(period.endTime)
+            }`;
+
+        row.querySelector(".price").textContent =
+            `${period.averagePricePerKwh
                 .toFixed(2)
-                .replace(".", ",")} kr./kWh
-                            </td>
-                        </tr>
-                    `;
-    }).join("")}
-            </tbody>
-        </table>`;
+                .replace(".", ",")} kr./kWh`;
+
+        tbody.appendChild(row);
+    }
+
+    container.replaceChildren(table);
 }
 
 function renderChart(prices, optimalPeriod) {
