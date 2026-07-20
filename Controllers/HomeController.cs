@@ -7,14 +7,16 @@ namespace StromligningApp.Controllers;
 
 public class HomeController(StromligningService service) : Controller
 {
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int hoursBack = 6)
     {
-        var model = new PricesViewModel
-        {
-            Prices = await service.GetPricesAsync()
-        };
+        var cutoff = DateTime.Now.AddHours(-hoursBack);
 
-        return View(model);
+        var prices = await service.GetPricesAsync(cutoff);
+
+        return View(new PricesViewModel
+        {
+            Prices = prices
+        });
     }
 
     public IActionResult Privacy()

@@ -5,9 +5,9 @@ namespace StromligningApp.Services;
 
 public sealed class StromligningService(HttpClient httpClient, IMemoryCache cache, ILogger<StromligningService> logger)
 {
-    public async Task<IReadOnlyList<ElectricityPrice>> GetPricesAsync()
+    public async Task<IReadOnlyList<ElectricityPrice>> GetPricesAsync(DateTime cutoff)
     {
-        return await cache.GetOrCreateAsync(
+        var prices = await cache.GetOrCreateAsync(
             "stromligning-prices",
             async entry =>
             {
@@ -17,6 +17,8 @@ public sealed class StromligningService(HttpClient httpClient, IMemoryCache cach
                 return await FetchPricesAsync();
             })
             ?? [];
+
+        return [.. prices.Where(price => price.EndTime > cutoff)];
     }
 
     private async Task<IReadOnlyList<ElectricityPrice>> FetchPricesAsync()
