@@ -29,8 +29,8 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release --no-restore
 
-      - name: dotnet publish
-        run: dotnet publish -c Release --no-build -o "${{ env.DOTNET_ROOT }}/myapp"
+      - name: Publish
+        run: dotnet publish StromligningApp.csproj -c Release --no-build -o "${{ env.DOTNET_ROOT }}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v7
