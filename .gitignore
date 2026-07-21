@@ -480,3 +480,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Ignore TypeScript compiled JavaScript files and source maps
+wwwroot/js/*.js
+wwwroot/js/*.js.map
