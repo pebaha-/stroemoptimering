@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "es2022",
+    "moduleDetection": "legacy",
+    "strict": true,
+    "outDir": "wwwroot/js",
+    "rootDir": "Scripts",
+    "sourceMap": true
+  },
+  "include": [
+    "Scripts/**/*.ts"
+  ]
+}
