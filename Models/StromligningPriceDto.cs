@@ -1,4 +1,6 @@
-﻿public sealed class StromligningPriceDto
+﻿namespace StromligningApp.Models;
+
+public sealed class StromligningPriceDto
 {
     public DateTimeOffset Date { get; init; }
 

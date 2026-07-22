@@ -54,6 +54,30 @@ function formatDateTime(value: string): string {
     })}`;
 }
 
+function formatTime(value: string): string {
+    return new Date(value).toLocaleTimeString("da-DK", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function formatPeriod(startTime: string, endTime: string): string {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const formattedEnd = start.toDateString() === end.toDateString()
+        ? formatTime(endTime)
+        : formatDateTime(endTime);
+
+    return `${formatDateTime(startTime)} – ${formattedEnd}`;
+}
+
+function formatPrice(pricePerKwh: number): string {
+    return `${pricePerKwh.toLocaleString("da-DK", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })} kr./kWh`;
+}
+
 function renderBestPeriod(period: OptimalPeriod | undefined): void {
     const container = document.getElementById("best-period") as HTMLElement | null;
 
@@ -66,23 +90,11 @@ function renderBestPeriod(period: OptimalPeriod | undefined): void {
         return;
     }
 
-    const start = new Date(period.startTime);
-    const end = new Date(period.endTime);
-
-    const sameDay = start.toDateString() === end.toDateString();
-
     container.innerHTML = `
         <div class="alert alert-success">
             <strong>Bedste periode:</strong>
-            ${formatDateTime(period.startTime)}
-            –
-            ${sameDay
-            ? end.toLocaleTimeString("da-DK", {
-                hour: "2-digit",
-                minute: "2-digit"
-            })
-            : formatDateTime(period.endTime)}
-            (${period.averagePricePerKwh.toFixed(2).replace(".", ",")} kr./kWh)
+            ${formatPeriod(period.startTime, period.endTime)}
+            (${formatPrice(period.averagePricePerKwh)})
         </div>`;
 }
 
@@ -124,25 +136,11 @@ function renderOptimalPeriods(periods: OptimalPeriod[]): void {
             .firstElementChild!
             .cloneNode(true) as HTMLTableRowElement;
 
-        const start = new Date(period.startTime);
-        const end = new Date(period.endTime);
-
-        const sameDay =
-            start.toDateString() === end.toDateString();
-
         row.querySelector(".period")!.textContent =
-            `${formatDateTime(period.startTime)} - ${sameDay
-                ? end.toLocaleTimeString("da-DK", {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                })
-                : formatDateTime(period.endTime)
-            }`;
+            formatPeriod(period.startTime, period.endTime);
 
         row.querySelector(".price")!.textContent =
-            `${period.averagePricePerKwh
-                .toFixed(2)
-                .replace(".", ",")} kr./kWh`;
+            formatPrice(period.averagePricePerKwh);
 
         tbody.appendChild(row);
     }
@@ -182,7 +180,7 @@ function renderChart(
         const start = new Date(optimalPeriod.startTime);
         const end = new Date(optimalPeriod.endTime);
 
-        return time >= start && time <= end
+        return time >= start && time < end
             ? price.pricePerKwh
             : null;
     });
@@ -265,9 +263,7 @@ function renderChart(
                 tooltip: {
                     callbacks: {
                         label(context: any): string {
-                            return `${context.parsed.y
-                                .toFixed(2)
-                                .replace(".", ",")} kr./kWh`;
+                            return formatPrice(context.parsed.y);
                         }
                     }
                 }
@@ -285,7 +281,8 @@ function updateOptimalPeriod(): void {
     }
 
     const hours = Number(hoursInput.value);
-    const minutes = Number(minutesInput.value);    const totalMinutes = hours * 60 + minutes;
+    const minutes = Number(minutesInput.value);
+    const totalMinutes = hours * 60 + minutes;
 
     if (totalMinutes < 5 || totalMinutes > 1440) {
         return;
@@ -308,24 +305,15 @@ function findCurrentIndex(prices: ElectricityPrice[]): number {
     );
 }
 
-function isPastSegment(context: any): boolean {
-    return context.p0DataIndex < findCurrentIndex(getPrices());
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     const hoursInput = document.getElementById("hours");
     const minutesInput = document.getElementById("minutes");
 
-    console.log("price-chart.js initialized");
-    console.log({ hoursInput, minutesInput });
-
     hoursInput?.addEventListener("change", () => {
-        console.log("hours changed");
         updateOptimalPeriod();
     });
 
     minutesInput?.addEventListener("change", () => {
-        console.log("minutes changed");
         updateOptimalPeriod();
     });
 
