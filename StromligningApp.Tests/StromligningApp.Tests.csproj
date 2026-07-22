@@ -8,6 +8,7 @@
     <IsTestProject>true</IsTestProject>
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+    <ExcludeByFile>**/Program.cs,**/*.cshtml</ExcludeByFile>
   </PropertyGroup>
 
   <ItemGroup>

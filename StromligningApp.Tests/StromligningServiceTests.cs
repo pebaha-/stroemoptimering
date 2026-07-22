@@ -116,6 +116,40 @@ public sealed class StromligningServiceTests
         Assert.AreEqual(1, handler.RequestCount);
     }
 
+    [TestMethod]
+    public async Task GetPricesAsync_ReturnsEmptyListWhenApiReturnsNull()
+    {
+        var (service, handler) = CreateService("null");
+
+        var prices = await service.GetPricesAsync(DateTimeOffset.MinValue);
+
+        Assert.IsEmpty(prices);
+        Assert.AreEqual(1, handler.RequestCount);
+    }
+
+    [TestMethod]
+    public async Task GetPricesAsync_ReturnsEmptyListWhenCacheContainsNull()
+    {
+        var handler = new StubHttpMessageHandler("[]");
+        var httpClient = new HttpClient(handler)
+        {
+            BaseAddress = new Uri("https://stromligning.dk/")
+        };
+        var cache = new MemoryCache(new MemoryCacheOptions());
+        cache.Set<IReadOnlyList<Models.ElectricityPrice>?>(
+            "stromligning-prices",
+            null);
+        var service = new StromligningService(
+            httpClient,
+            cache,
+            NullLogger<StromligningService>.Instance);
+
+        var prices = await service.GetPricesAsync(DateTimeOffset.MinValue);
+
+        Assert.IsEmpty(prices);
+        Assert.AreEqual(0, handler.RequestCount);
+    }
+
     private static (StromligningService Service, StubHttpMessageHandler Handler) CreateService(string json)
     {
         var handler = new StubHttpMessageHandler(json);
