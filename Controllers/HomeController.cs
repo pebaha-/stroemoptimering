@@ -9,7 +9,7 @@ public class HomeController(StromligningService service) : Controller
 {
     public async Task<IActionResult> Index(int hoursBack = 6)
     {
-        var cutoff = DateTime.Now.AddHours(-hoursBack);
+        var cutoff = DateTimeOffset.Now.AddHours(-hoursBack);
 
         var prices = await service.GetPricesAsync(cutoff);
 

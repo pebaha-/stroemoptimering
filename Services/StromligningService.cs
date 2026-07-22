@@ -5,7 +5,7 @@ namespace StromligningApp.Services;
 
 public sealed class StromligningService(HttpClient httpClient, IMemoryCache cache, ILogger<StromligningService> logger)
 {
-    public async Task<IReadOnlyList<ElectricityPrice>> GetPricesAsync(DateTime cutoff)
+    public async Task<IReadOnlyList<ElectricityPrice>> GetPricesAsync(DateTimeOffset cutoff)
     {
         var prices = await cache.GetOrCreateAsync(
             "stromligning-prices",
