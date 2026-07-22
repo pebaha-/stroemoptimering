@@ -131,10 +131,12 @@ function renderOptimalPeriods(periods: OptimalPeriod[]): void {
         return;
     }
 
-    for (const period of periods.slice(0, 10)) {
+    for (const [index, period] of periods.slice(0, 10).entries()) {
         const row = rowTemplate.content
             .firstElementChild!
             .cloneNode(true) as HTMLTableRowElement;
+
+        row.querySelector(".rank")!.textContent = String(index + 1);
 
         row.querySelector(".period")!.textContent =
             formatPeriod(period.startTime, period.endTime);

@@ -18,7 +18,83 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  margin-bottom: 0;
+}
+
+.price-chart-card,
+.optimal-periods-card {
+  border: 0;
+  box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .08);
+}
+
+.price-chart-card .card-body {
+  display: flex;
+  align-items: center;
+}
+
+.price-chart-card .price-chart {
+  width: 100% !important;
+}
+
+.optimal-periods-card {
+  border-top: .25rem solid var(--bs-success);
+}
+
+.optimal-periods-card .card-header {
+  background: var(--bs-body-bg);
+  border-bottom: 1px solid var(--bs-border-color);
+  padding: 1rem;
+}
+
+.optimal-periods-table {
+  font-size: .875rem;
+}
+
+.optimal-periods-table th,
+.optimal-periods-table td {
+  padding: .65rem .5rem;
+}
+
+.optimal-periods-table .rank-column,
+.optimal-periods-table .rank {
+  padding-left: 1rem;
+  width: 2.5rem;
+}
+
+.optimal-periods-table .price {
+  white-space: nowrap;
+}
+
+/* Keep the complete overview visible on typical 1080p desktop viewports. */
+@media (min-width: 992px) and (max-height: 1000px) {
+  main.container {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  main > header {
+    margin-bottom: 1rem !important;
+  }
+
+  .duration-controls {
+    margin-bottom: .75rem !important;
+  }
+
+  #best-period .alert {
+    margin-bottom: .75rem;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+  }
+
+  .optimal-periods-card .card-header {
+    padding: .75rem 1rem;
+  }
+
+  .optimal-periods-table th,
+  .optimal-periods-table td {
+    padding-top: .4rem;
+    padding-bottom: .4rem;
+  }
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {

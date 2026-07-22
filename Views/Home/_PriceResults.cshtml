@@ -15,21 +15,38 @@
 
     <div id="best-period"></div>
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <canvas class="price-chart"></canvas>
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-8 d-flex">
+            <div class="card price-chart-card w-100">
+                <div class="card-body">
+                    <canvas class="price-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 d-flex">
+            <aside class="card optimal-periods-card w-100" aria-labelledby="optimal-periods-heading">
+                <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <h2 id="optimal-periods-heading" class="h5 mb-0">Andre billige perioder</h2>
+                        <span class="badge text-bg-success">Top 10</span>
+                    </div>
+                    <p class="small text-body-secondary mb-0 mt-1">
+                        De billigste alternativer til perioden ovenfor.
+                    </p>
+                </div>
+                <div id="optimal-periods" class="card-body p-0"></div>
+            </aside>
         </div>
     </div>
 </div>
 
-<h2 class="h4">Top 10 billigste perioder</h2>
-
-<div id="optimal-periods"></div>
-
 <template id="optimal-period-table-template">
-    <table class="table table-striped">
+    <table class="table table-hover align-middle mb-0 optimal-periods-table">
+        <caption class="visually-hidden">De ti billigste perioder</caption>
         <thead>
             <tr>
+                <th scope="col" class="rank-column">#</th>
                 <th>Periode</th>
                 <th>Pris</th>
             </tr>
@@ -40,6 +57,7 @@
 
 <template id="optimal-period-row-template">
     <tr>
+        <th scope="row" class="rank text-body-secondary"></th>
         <td class="period"></td>
         <td class="price"></td>
     </tr>
