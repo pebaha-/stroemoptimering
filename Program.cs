@@ -2,7 +2,7 @@ using StromligningApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Logging.AddConsole();
+builder.Logging.AddAzureWebAppDiagnostics();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddMemoryCache();
