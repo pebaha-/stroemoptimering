@@ -2,6 +2,8 @@ using StromligningApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddConsole();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddMemoryCache();
@@ -11,6 +13,8 @@ builder.Services.AddHttpClient<StromligningService>(client =>
 });
 
 var app = builder.Build();
+
+app.Logger.LogInformation("StromligningApp starting in {EnvironmentName} environment.", app.Environment.EnvironmentName);
 
 app.UseStaticFiles();
 
@@ -24,6 +28,32 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.Use(async (context, next) =>
+{
+    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+    app.Logger.LogInformation("Request started: {Method} {Path}.", context.Request.Method, context.Request.Path);
+
+    try
+    {
+        await next();
+    }
+    catch (Exception exception)
+    {
+        app.Logger.LogError(exception, "Request failed: {Method} {Path}.", context.Request.Method, context.Request.Path);
+        throw;
+    }
+    finally
+    {
+        stopwatch.Stop();
+        app.Logger.LogInformation(
+            "Request finished: {Method} {Path} returned {StatusCode} in {ElapsedMilliseconds} ms.",
+            context.Request.Method,
+            context.Request.Path,
+            context.Response.StatusCode,
+            stopwatch.ElapsedMilliseconds);
+    }
+});
 
 app.UseAuthorization();
 
