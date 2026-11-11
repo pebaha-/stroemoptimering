@@ -31,6 +31,21 @@
             <option value="45">45</option>
         </select>
     </div>
+    <div class="row mb-4 time-window-controls">
+        <div class="col-md-3">
+            <label class="form-label" for="start-time">Fra</label>
+            <input id="start-time"
+                   class="form-control"
+                   type="datetime-local" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="end-time">Til</label>
+            <input id="end-time"
+                   class="form-control"
+                   type="datetime-local" />
+        </div>
+    </div>
 </div>
 
 <partial name="_PriceResults" model="Model" />
