@@ -11,7 +11,13 @@ function getPrices(): ElectricityPrice[] {
     return JSON.parse(element.textContent) as ElectricityPrice[];
 }
 
-function findOptimalPeriods(prices: ElectricityPrice[], minutes: number) {
+function formatDateTimeLocal(date: Date): string {
+    const pad = (value: number) => String(value).padStart(2, "0");
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function findOptimalPeriods(prices: ElectricityPrice[], minutes: number, startTime: Date, endTime: Date) {
     const periods = [];
     const slots = minutes / 15;
     const now = new Date();
@@ -20,14 +26,22 @@ function findOptimalPeriods(prices: ElectricityPrice[], minutes: number) {
         const start = new Date(prices[i].startTime);
         const end = new Date(prices[i + slots - 1].endTime);
 
-        // Spring perioder over, der allerede er startet
+        // Spring perioder over, der allerede er startet.
         if (start < now) {
+            continue;
+        }
+
+        // Hele perioden skal ligge inden for det valgte interval.
+        if (start < startTime || end > endTime) {
             continue;
         }
 
         const window = prices.slice(i, i + slots);
 
-        const average = window.reduce((sum, price) => sum + price.pricePerKwh, 0) / slots;
+        const average = window.reduce(
+            (sum, price) => sum + price.pricePerKwh,
+            0
+        ) / slots;
 
         periods.push({
             startTime: prices[i].startTime,
@@ -277,8 +291,10 @@ function renderChart(
 function updateOptimalPeriod(): void {
     const hoursInput = document.getElementById("hours") as HTMLInputElement | null;
     const minutesInput = document.getElementById("minutes") as HTMLSelectElement | null;
+    const startTimeInput = document.getElementById("start-time") as HTMLInputElement | null;
+    const endTimeInput = document.getElementById("end-time") as HTMLInputElement | null;
 
-    if (!hoursInput || !minutesInput) {
+    if (!hoursInput || !minutesInput || !startTimeInput || !endTimeInput) {
         return;
     }
 
@@ -290,8 +306,19 @@ function updateOptimalPeriod(): void {
         return;
     }
 
+    if (!startTimeInput.value || !endTimeInput.value) {
+        return;
+    }
+
+    const startTime = new Date(startTimeInput.value);
+    const endTime = new Date(endTimeInput.value);
+
+    if (startTime >= endTime) {
+        return;
+    }
+
     const prices = getPrices();
-    const periods = findOptimalPeriods(prices, totalMinutes);
+    const periods = findOptimalPeriods(prices, totalMinutes, startTime, endTime);
     const cheapest = periods[0];
 
     renderBestPeriod(cheapest);
@@ -310,14 +337,23 @@ function findCurrentIndex(prices: ElectricityPrice[]): number {
 document.addEventListener("DOMContentLoaded", () => {
     const hoursInput = document.getElementById("hours");
     const minutesInput = document.getElementById("minutes");
+    const startTimeInput = document.getElementById("start-time") as HTMLInputElement | null;
+    const endTimeInput = document.getElementById("end-time") as HTMLInputElement | null;
 
-    hoursInput?.addEventListener("change", () => {
-        updateOptimalPeriod();
-    });
+    hoursInput?.addEventListener("change", updateOptimalPeriod);
+    minutesInput?.addEventListener("change", updateOptimalPeriod);
+    startTimeInput?.addEventListener("change", updateOptimalPeriod);
+    endTimeInput?.addEventListener("change", updateOptimalPeriod);
 
-    minutesInput?.addEventListener("change", () => {
-        updateOptimalPeriod();
-    });
+    const prices = getPrices();
+
+    if (prices.length > 0 && startTimeInput && endTimeInput) {
+        const now = new Date();
+        const lastPriceEnd = new Date(prices[prices.length - 1].endTime);
+
+        startTimeInput.value = formatDateTimeLocal(now);
+        endTimeInput.value = formatDateTimeLocal(lastPriceEnd);
+    }
 
     updateOptimalPeriod();
 });
